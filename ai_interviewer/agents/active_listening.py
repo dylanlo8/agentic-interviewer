@@ -26,6 +26,7 @@ def generate_turn(
         cfg.active_listening_model,
         cfg.temperature,
         ACTIVE_LISTENING_SYSTEM,
-        f"Construct the complete interviewer turn.\n\nCore content:\n{core_content}\n\n{context}",
+        f"Generate a prefix that leads naturally into the following.\n\nCore content:\n{core_content}\n\n{context}",
     )
-    return result.get("interviewer_turn", core_content)
+    prefix = result.get("prefix", "").strip()
+    return f"{prefix} {core_content}" if prefix else core_content

@@ -11,8 +11,11 @@ TOPIC_EVALUATOR_SYSTEM = """You are a momentum evaluator for a qualitative resea
 
 Assess whether the interviewee's recent responses show substantive momentum on the current topic.
 
-Momentum = new information is being revealed, emotional depth is being explored, or important threads remain open.
-Low momentum = repetition, minimal responses, or the topic feels exhausted.
+Evaluate momentum on two dimensions:
+1. Conversational richness: Is new information being revealed, emotional depth being explored, or important threads still open?
+2. Objective coverage: Are the stated topic objectives being meaningfully addressed by the conversation?
+
+Low momentum = repetition, minimal responses, the topic feels exhausted, OR the conversation has drifted far from the topic objectives.
 
 Return JSON only:
 {
@@ -21,7 +24,9 @@ Return JSON only:
 }"""
 
 
-SOCRATIC_SYSTEM = """You are an AI interviewer conducting a conversational interview. Your task is to ask one high-quality follow-up question to the participant's statement.
+SOCRATIC_SYSTEM = """
+You are an Expert Qualitative Research Interviewer conducting a conversational interview. 
+Your task is to ask one high-quality follow-up question to the participant's statement.
 
 Your follow-up question must:
 
@@ -53,7 +58,8 @@ Return JSON only:
 
 ACTIVE_LISTENING_SYSTEM = """You are an active listening response generator for a qualitative research interview.
 
-Construct the complete interviewer turn by prepending a short empathetic prefix to the core content provided.
+Generate a short empathetic prefix that acknowledges what the interviewee just said.
+The prefix will be placed immediately before a follow-up question or statement — do not introduce, preview, or hint at what that question will be about.
 
 Techniques — choose what fits naturally, do not force all at once:
 - Paraphrasing: reflect the interviewee's key point back in different words.
@@ -61,13 +67,14 @@ Techniques — choose what fits naturally, do not force all at once:
 - Acknowledging emotions: name and validate emotional content where present.
 
 Rules:
-- Prefix must feel responsive and natural, not formulaic or repetitive.
-- Keep the prefix to 1–2 sentences maximum.
-- The core content (question or closing remark) must be appended unchanged.
+- Write only the prefix — do not repeat or rewrite the core content.
+- 1–2 sentences maximum.
+- Focus entirely on what the interviewee said, not on what comes next.
+- Feel responsive and natural, not formulaic or repetitive.
 
 Return JSON only:
 {
-  "interviewer_turn": "<active-listening prefix + core content as one flowing response>"
+  "prefix": "<active-listening prefix only>"
 }"""
 
 
@@ -90,6 +97,7 @@ def build_context(state: InterviewState, topics: list, recent_turns: int = 4) ->
     ) or "  (no turns yet)"
 
     open_loops_text = "\n".join(f"  - {l}" for l in state.open_loops) or "  (none)"
+    objectives_text = "\n".join(f"  - {o}" for o in topic.objectives) or "  (none)"
 
     return (
         f"INTERVIEW STATE\n"
@@ -98,6 +106,7 @@ def build_context(state: InterviewState, topics: list, recent_turns: int = 4) ->
         f"  Time remaining (topic): {topic_remaining:.1f} min\n"
         f"  Follow-ups in thread: {state.followups_in_thread}/{state.max_followups_per_thread}\n"
         f"  Topic momentum: {'yes' if state.topic_momentum else 'no'}\n\n"
+        f"TOPIC OBJECTIVES\n{objectives_text}\n\n"
         f"OPEN LOOPS\n{open_loops_text}\n\n"
         f"RECENT TRANSCRIPT\n{transcript_text}"
     )

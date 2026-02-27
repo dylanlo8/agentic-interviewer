@@ -11,6 +11,11 @@ class Topic:
     topic_title: str
     guiding_question: str
     budget_minutes: float
+    objectives: list[str] = None
+
+    def __post_init__(self):
+        if self.objectives is None:
+            self.objectives = []
 
 
 @dataclass
@@ -31,6 +36,7 @@ def load_protocol(path: Path) -> Protocol:
             topic_title=t["topic_title"],
             guiding_question=t["guiding_question"],
             budget_minutes=t["budget_minutes"],
+            objectives=t.get("objectives", []),
         )
         for t in data["topics"]
     ]
