@@ -1,57 +1,45 @@
 {
   "protocol_name": "Pregnancy Health Interview",
   "version": "1.0",
+  "total_minutes": 45,
+  "wrapup_minutes": 5,
+  "max_followups_per_thread": 10,
   "topics": [
     {
       "topic_id": "general_pregnancy",
       "topic_title": "General Pregnancy Experience",
-      "guiding_question": "Tell me about how your pregnancy has been so far.",
-      "follow_up_questions": [
-        "What has been challenging?",
-        "What has been surprising?"
-      ]
+      "budget_minutes": 7,
+      "guiding_question": "Tell me about how your pregnancy has been so far."
     },
     {
       "topic_id": "diet_during_pregnancy",
       "topic_title": "Diet During Pregnancy",
-      "guiding_question": "I am curious what you’ve been eating during your pregnancy. Tell me about what you ate throughout the day yesterday. What are your thoughts about what you should eat and drink during pregnancy?",
-      "follow_up_questions": [
-        "What did you eat in the morning, afternoon, and evening?",
-        "What do you think is healthy to eat during pregnancy?",
-        "What do you think is unhealthy to eat during pregnancy?"
-      ]
+      "budget_minutes": 9,
+      "guiding_question": "I am curious what you've been eating during your pregnancy. Tell me about what you ate throughout the day yesterday. What are your thoughts about what you should eat and drink during pregnancy?"
     },
     {
       "topic_id": "exercise_during_pregnancy",
       "topic_title": "Exercise During Pregnancy",
-      "guiding_question": "What are your thoughts about what you should do for exercise during pregnancy?",
-      "follow_up_questions": [
-        "What do you think is healthy to do for exercise during pregnancy?",
-        "What do you think is unhealthy to do for exercise?",
-        "Tell me more about what your physical activity is like."
-      ]
+      "budget_minutes": 7,
+      "guiding_question": "What are your thoughts about what you should do for exercise during pregnancy?"
     },
     {
       "topic_id": "weight_gain_during_pregnancy",
       "topic_title": "Weight Gain During Pregnancy",
-      "guiding_question": "Your body changes a lot during pregnancy. What have you noticed changing? How do you feel?",
-      "follow_up_questions": [
-        "How do you feel about how much weight you have gained?"
-      ]
+      "budget_minutes": 6,
+      "guiding_question": "Your body changes a lot during pregnancy. What have you noticed changing? How do you feel?"
     },
     {
       "topic_id": "intervention_development",
       "topic_title": "Intervention Development",
-      "guiding_question": "We want to know how to help women be healthy during their pregnancy. What would have helped you to make healthy choices during your pregnancy?",
-      "follow_up_questions": [
-        "What made it hard for you to eat well, exercise, or gain the amount of weight you wanted during your pregnancy?"
-      ]
+      "budget_minutes": 7,
+      "guiding_question": "We want to know how to help women be healthy during their pregnancy. What would have helped you to make healthy choices during your pregnancy?"
     },
     {
       "topic_id": "summary",
       "topic_title": "Summary and Closing",
-      "guiding_question": "Thank you for taking the time to tell me a little bit about your pregnancy. Is there anything else you think I should know?",
-      "follow_up_questions": []
+      "budget_minutes": 4,
+      "guiding_question": "Thank you for taking the time to tell me a little bit about your pregnancy. Is there anything else you think I should know?"
     }
   ]
 }
