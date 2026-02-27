@@ -89,10 +89,25 @@ def run_interview(protocol: Protocol, cfg: LLMConfig) -> None:
     topics = protocol.topics
     momentum_future: Optional[Future] = None
 
-    print(f"\n{'=' * 60}")
+    W = 60
+    print(f"\n{'=' * W}")
     print(f"  {protocol.protocol_name}")
-    print(f"  {protocol.total_minutes} min · {len(topics)} topics")
-    print(f"{'=' * 60}\n")
+    print(f"{'=' * W}")
+
+    # Print protocol objectives to Interviewee
+    if protocol.description:
+        # Word-wrap description to fit within W chars (2-space indent)
+        import textwrap
+        for line in textwrap.wrap(protocol.description, width=W - 2):
+            print(f"  {line}")
+        print()
+    topic_titles = "\n".join(
+        f"  {i + 1}. {t.topic_title}" for i, t in enumerate(topics)
+    )
+    print(f"  This conversation will cover {len(topics)} topics:")
+    print(topic_titles)
+    print(f"\n  Expected duration: ~{int(protocol.total_minutes)} minutes")
+    print(f"{'=' * W}\n")
 
     # First turn: guiding question of topic 0, no active-listening wrap (no prior response yet)
     interviewer_turn = generate_turn(

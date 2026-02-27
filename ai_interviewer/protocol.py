@@ -26,10 +26,13 @@ class Protocol:
     wrapup_minutes: float
     max_followups_per_thread: int
     topics: list[Topic]
+    description: str = ""
 
 
 def load_protocol(path: Path) -> Protocol:
     data = json.loads(path.read_text())
+
+    # Creating Topic instances
     topics = [
         Topic(
             topic_id=t["topic_id"],
@@ -40,6 +43,8 @@ def load_protocol(path: Path) -> Protocol:
         )
         for t in data["topics"]
     ]
+
+    # Creating Protocol instance
     return Protocol(
         protocol_name=data["protocol_name"],
         version=data["version"],
@@ -47,4 +52,5 @@ def load_protocol(path: Path) -> Protocol:
         wrapup_minutes=data["wrapup_minutes"],
         max_followups_per_thread=data["max_followups_per_thread"],
         topics=topics,
+        description=data.get("description", ""),
     )

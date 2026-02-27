@@ -4,6 +4,7 @@
   "total_minutes": 45,
   "wrapup_minutes": 5,
   "max_followups_per_thread": 10,
+  "description": "This study explores the experiences of pregnant women around diet, exercise, and body image. Your responses will help us understand how to better support healthy pregnancies. There are no right or wrong answers — we are simply interested in your personal experience.",
   "topics": [
     {
       "topic_id": "general_pregnancy",
