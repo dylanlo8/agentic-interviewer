@@ -1,3 +1,6 @@
 langchain-core>=0.3.0
 langchain-openai>=0.2.0
 python-dotenv>=1.0.0
+# genagents deps (genagents itself is a git submodule — see setup instructions below)
+numpy>=1.26.0
+tqdm>=4.0.0
