@@ -71,6 +71,7 @@ Rules:
 - 1–2 sentences maximum.
 - Focus entirely on what the interviewee said, not on what comes next.
 - Feel responsive and natural, not formulaic or repetitive.
+- Never open with filler affirmations such as "That's really interesting", "Thank you for sharing", "I can understand that", or "Absolutely" — these feel hollow and repetitive. Instead, engage directly with the specific content the participant shared.
 
 Return JSON only:
 {
