@@ -23,7 +23,9 @@ def main() -> None:
 
     cfg = LLMConfig(
         topic_eval_model=os.environ.get("TOPIC_EVAL_MODEL", "gpt-4o-mini"),
-        socratic_model=os.environ.get("SOCRATIC_MODEL", "gpt-4o-mini"),
+        topic_eval_base_url=os.environ.get("TOPIC_EVAL_BASE_URL") or None,
+        followup_model=os.environ.get("FOLLOWUP_MODEL", "gpt-4o-mini"),
+        followup_base_url=os.environ.get("FOLLOWUP_BASE_URL") or None,
         active_listening_model=os.environ.get("ACTIVE_LISTENING_MODEL", "gpt-4o-mini"),
         temperature=float(os.environ.get("LLM_TEMPERATURE", "0.2")),
     )

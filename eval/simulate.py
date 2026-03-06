@@ -86,7 +86,8 @@ def run_simulation(
 
     cfg = LLMConfig(
         topic_eval_model=os.environ.get("TOPIC_EVAL_MODEL", model),
-        socratic_model=os.environ.get("SOCRATIC_MODEL", model),
+        topic_eval_base_url=os.environ.get("TOPIC_EVAL_BASE_URL") or None,
+        followup_model=os.environ.get("FOLLOWUP_MODEL", model),
         active_listening_model=os.environ.get("ACTIVE_LISTENING_MODEL", model),
         temperature=temperature,
     )

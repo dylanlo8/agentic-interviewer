@@ -8,7 +8,7 @@ from typing import Callable, Optional
 
 from ai_interviewer.agents.active_listening import generate_turn
 from ai_interviewer.agents.orchestrator import decide_action
-from ai_interviewer.agents.socratic import generate_probe
+from ai_interviewer.agents.followup import generate_probe
 from ai_interviewer.agents.topic_evaluator import evaluate_momentum_async
 from ai_interviewer.llm import LLMConfig
 from ai_interviewer.protocol import Protocol

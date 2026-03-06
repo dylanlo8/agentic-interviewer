@@ -12,14 +12,20 @@ from langchain_openai import ChatOpenAI
 @dataclass
 class LLMConfig:
     topic_eval_model: str = "gpt-4o-mini"
-    socratic_model: str = "gpt-4o-mini"
+    topic_eval_base_url: str = None     # set to Ollama endpoint to use a local model
+    followup_model: str = "gpt-4o-mini"
+    followup_base_url: str = None       # set to Ollama endpoint to use a local model
     active_listening_model: str = "gpt-4o-mini"
     temperature: float = 0.2
 
 
-def _invoke_json(model: str, temperature: float, system_prompt: str, user_message: str) -> dict:
+def _invoke_json(model: str, temperature: float, system_prompt: str, user_message: str, base_url: str = None) -> dict:
     """Call an LLM and return a parsed JSON dict. Falls back to regex extraction on parse failure."""
-    llm = ChatOpenAI(model=model, temperature=temperature)
+    kwargs = {"model": model, "temperature": temperature}
+    if base_url:
+        kwargs["base_url"] = base_url
+        kwargs["api_key"] = "ollama"  # Ollama ignores this but the SDK requires a non-empty value
+    llm = ChatOpenAI(**kwargs)
     messages = [SystemMessage(content=system_prompt), HumanMessage(content=user_message)]
     response = llm.invoke(messages)
     content = response.content
