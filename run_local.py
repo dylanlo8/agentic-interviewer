@@ -18,7 +18,7 @@ def main() -> None:
         format="%(asctime)s  %(message)s",
         datefmt="%H:%M:%S",
     )
-    protocol_path = Path(os.environ.get("AI_PROTOCOL_PATH", "notebooks/protocol.json"))
+    protocol_path = Path(os.environ.get("AI_PROTOCOL_PATH", "sample_protocols/protocol_caregiver.json"))
     protocol = load_protocol(protocol_path)
 
     cfg = LLMConfig(

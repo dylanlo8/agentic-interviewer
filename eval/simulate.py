@@ -21,7 +21,7 @@ Usage:
         --protocol notebooks/protocol.json \\
         --agent eval/agents/gss_agent_001 \\
         --interviewer agentic \\
-        --minutes-per-turn 2.0
+        --minutes-per-turn 1.5
 
 The --interviewer flag selects which interviewer drives the conversation:
     agentic     — the multi-agent system (default)
@@ -72,7 +72,7 @@ def run_simulation(
     protocol_path: Path,
     agent_folder: Path,
     interviewer_id: str = "agentic",
-    minutes_per_turn: float = 2.0,
+    minutes_per_turn: float = 1.5,
     model: str = "gpt-4o-mini",
     temperature: float = 0.2,
 ) -> Path:
@@ -165,8 +165,8 @@ def main() -> None:
     parser.add_argument("--interviewer", default="agentic",
                         choices=["agentic", "scripted", "single_llm"],
                         help="Which interviewer to use (default: agentic)")
-    parser.add_argument("--minutes-per-turn", type=float, default=2.0,
-                        help="Simulated minutes credited per interviewee turn (default: 2.0)")
+    parser.add_argument("--minutes-per-turn", type=float, default=1.5,
+                        help="Simulated minutes credited per interviewee turn (default: 1.5)")
     parser.add_argument("--model", default="gpt-4o-mini",
                         help="LLM model for the interviewer agents (default: gpt-4o-mini)")
     parser.add_argument("--temperature", type=float, default=0.2)
