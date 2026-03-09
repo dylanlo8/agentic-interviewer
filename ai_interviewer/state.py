@@ -21,6 +21,7 @@ class InterviewState:
     # Memory
     open_loops: list[str] = field(default_factory=list)
     topic_momentum: bool = True
+    conversation_summary: str = ""
 
     # Full conversation history
     transcript: list[dict] = field(default_factory=list)

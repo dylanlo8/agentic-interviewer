@@ -15,7 +15,7 @@ Usage:
         --protocol notebooks/protocol.json \\
         --model gpt-4o
 
-Scores each transcript on five dimensions (1–5) and writes a scores JSON
+Scores each transcript on eight dimensions (1–5) and writes a scores JSON
 file alongside the transcript in eval/results/.
 """
 
@@ -42,47 +42,68 @@ JUDGE_SYSTEM = """You are an expert evaluator of qualitative research interviews
 You will be given a complete interview transcript and the protocol used to conduct it,
 including the topic objectives that the interviewer was trying to address.
 
-Score the interview on each of the five dimensions below. For each dimension give:
+Score the interview on each of the eight dimensions below. For each dimension give:
   - "score": an integer from 1 to 5
   - "rationale": one to two sentences explaining the score
 
-Scoring scale:
+Scoring scale (higher = better for all dimensions):
   1 = Very poor   2 = Poor   3 = Acceptable   4 = Good   5 = Excellent
 
 Dimensions:
 
-1. topic_coverage
-   Did the conversation meaningfully address the stated objectives for each topic?
-   Consider whether all topics were reached and whether each objective was explored.
+1. clarity  [higher is better]
+   Are the interviewer's questions and the interviewee's answers easy to understand?
+   A score of 5 means both parties communicate with precise, unambiguous language.
+   A score of 1 means frequent confusion, unclear phrasing, or misunderstandings.
 
-2. response_depth
-   Did the interviewee provide rich, specific, concrete answers?
-   A score of 5 means detailed personal examples and emotional nuance were present.
-   A score of 1 means responses were brief, vague, or evasive throughout.
+2. empathy  [higher is better]
+   Does the interviewer show genuine empathy — acknowledging emotions, validating
+   experiences, and responding sensitively to difficult or personal content?
+   Penalise cold, clinical, or dismissive responses to emotional disclosures.
 
-3. question_quality
-   Were the interviewer's questions open-ended, focused on one idea at a time,
-   non-leading, and designed to elicit deeper reflection?
-   Penalise closed yes/no questions, leading questions, or multi-part questions.
+3. engagement  [higher is better]
+   Does the conversation feel dynamic and mutually engaged?
+   A score of 5 means the interviewee is forthcoming and the interviewer builds
+   momentum. A score of 1 means flat, transactional exchanges with little rapport.
 
-4. active_listening
-   Did the interviewer demonstrate active listening — paraphrasing, reflecting
-   emotions, acknowledging what was said — before asking the next question?
-   Penalise formulaic affirmations ("That's interesting", "Thank you for sharing").
+4. grammatical_correctness  [higher is better]
+   Are interviewer turns grammatically correct, fluent, and well-constructed?
+   A score of 5 means polished, natural language throughout.
+   A score of 1 means frequent grammatical errors that impede comprehension.
 
-5. pacing
-   Was time distributed well across topics? Were topics rushed or padded?
-   A score of 5 means each topic received appropriate depth relative to its importance.
-   A score of 1 means the interview was clearly imbalanced (one topic dominating, others skipped).
+5. relevance  [higher is better]
+   Do the interviewer's questions stay on-topic relative to the protocol objectives?
+   Penalise tangents, off-topic probes, or questions unrelated to the protocol.
+
+6. response_complexity  [higher is better]
+   Are the interviewer's questions pitched at an appropriate level of complexity?
+   A score of 5 means questions are well-calibrated — neither too simple nor
+   unnecessarily convoluted, matching the depth required by the topic.
+   A score of 1 means questions are consistently mismatched (too simplistic or
+   too jargon-heavy) relative to the interview's goals.
+
+7. specificity  [higher is better]
+   Do the interviewee's responses contain specific details, concrete examples,
+   and precise language rather than vague generalities?
+   A score of 5 means rich, particularised answers. A score of 1 means all answers
+   are abstract, generic, or non-committal.
+
+8. tone  [higher is better]
+   Is the interviewer's tone warm, professional, and appropriate throughout?
+   A score of 5 means consistently empathetic and non-judgmental delivery.
+   A score of 1 means cold, robotic, inappropriate, or inconsistent tone.
 
 Return ONLY valid JSON in this exact format:
 {
   "scores": {
-    "topic_coverage":   {"score": <1-5>, "rationale": "<string>"},
-    "response_depth":   {"score": <1-5>, "rationale": "<string>"},
-    "question_quality": {"score": <1-5>, "rationale": "<string>"},
-    "active_listening": {"score": <1-5>, "rationale": "<string>"},
-    "pacing":           {"score": <1-5>, "rationale": "<string>"}
+    "clarity":                {"score": <1-5>, "rationale": "<string>"},
+    "empathy":                {"score": <1-5>, "rationale": "<string>"},
+    "engagement":             {"score": <1-5>, "rationale": "<string>"},
+    "grammatical_correctness":{"score": <1-5>, "rationale": "<string>"},
+    "relevance":              {"score": <1-5>, "rationale": "<string>"},
+    "response_complexity":    {"score": <1-5>, "rationale": "<string>"},
+    "specificity":            {"score": <1-5>, "rationale": "<string>"},
+    "tone":                   {"score": <1-5>, "rationale": "<string>"}
   },
   "summary": "<one paragraph narrative assessment of the overall interview quality>"
 }"""

@@ -80,6 +80,29 @@ Return JSON only:
 }"""
 
 
+SUMMARISER_SYSTEM = """You are a context manager for a qualitative research interview.
+
+Your job is to maintain a concise running summary of the interview so far, 
+so that later agents can recall what was discussed without reading the full transcript.
+
+Focus on:
+- Key facts, experiences, and opinions the participant has shared
+- Emotional themes or significant moments
+- Topics already covered and their main takeaways
+- Any context that would be useful for understanding later responses
+
+Rules:
+- Be concise: 3–5 sentences maximum
+- Write in third person (e.g. "The participant described...", "She mentioned...")
+- Do not editorialize or interpret — summarise what was said
+- If a prior summary is provided, update it to incorporate the new information rather than starting fresh
+
+Return JSON only:
+{
+  "summary": "<3–5 sentence running summary>"
+}"""
+
+
 # ---------------------------------------------------------------------------
 # Context builder (shared by all agents)
 # ---------------------------------------------------------------------------
@@ -100,6 +123,7 @@ def build_context(state: InterviewState, topics: list, recent_turns: int = 4) ->
 
     open_loops_text = "\n".join(f"  - {l}" for l in state.open_loops) or "  (none)"
     objectives_text = "\n".join(f"  - {o}" for o in topic.objectives) or "  (none)"
+    summary_text = f"  {state.conversation_summary}" if state.conversation_summary else "  (no summary yet)"
 
     return (
         f"INTERVIEW STATE\n"
@@ -109,6 +133,7 @@ def build_context(state: InterviewState, topics: list, recent_turns: int = 4) ->
         f"  Follow-ups in thread: {state.followups_in_thread}/{state.max_followups_per_thread}\n"
         f"  Topic momentum: {'yes' if state.topic_momentum else 'no'}\n\n"
         f"TOPIC OBJECTIVES\n{objectives_text}\n\n"
+        f"CONVERSATION SUMMARY\n{summary_text}\n\n"
         f"OPEN LOOPS\n{open_loops_text}\n\n"
         f"RECENT TRANSCRIPT\n{transcript_text}"
     )

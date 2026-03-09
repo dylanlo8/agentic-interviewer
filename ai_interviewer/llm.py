@@ -16,6 +16,8 @@ class LLMConfig:
     followup_model: str = "gpt-4o-mini"
     followup_base_url: str = None       # set to Ollama endpoint to use a local model
     active_listening_model: str = "gpt-4o-mini"
+    summariser_model: str = "gpt-4o-mini"
+    summariser_base_url: str = None       # set to Ollama endpoint to use a local model
     temperature: float = 0.2
 
 

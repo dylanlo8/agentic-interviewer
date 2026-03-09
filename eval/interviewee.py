@@ -38,9 +38,6 @@ if not _GENAGENTS_ROOT.exists():
 if str(_GENAGENTS_ROOT) not in sys.path:
     sys.path.insert(0, str(_GENAGENTS_ROOT))
 
-# genagents requires simulation_engine/settings.py.  Always regenerate it from
-# the current environment so a stale file (e.g. generated before load_dotenv())
-# can never cause a 401 error.
 _SETTINGS_PATH = _GENAGENTS_ROOT / "simulation_engine" / "settings.py"
 _api_key = os.environ.get("OPENAI_API_KEY", "")
 _llm_vers = os.environ.get("GENAGENTS_LLM_VERS", "gpt-4o-mini")

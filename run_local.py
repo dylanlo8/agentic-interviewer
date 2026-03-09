@@ -27,6 +27,8 @@ def main() -> None:
         followup_model=os.environ.get("FOLLOWUP_MODEL", "gpt-4o-mini"),
         followup_base_url=os.environ.get("FOLLOWUP_BASE_URL") or None,
         active_listening_model=os.environ.get("ACTIVE_LISTENING_MODEL", "gpt-4o-mini"),
+        summariser_model=os.environ.get("SUMMARISER_MODEL", "gpt-4o-mini"),
+        summariser_base_url=os.environ.get("SUMMARISER_BASE_URL") or None,
         temperature=float(os.environ.get("LLM_TEMPERATURE", "0.2")),
     )
 

@@ -9,6 +9,7 @@ from typing import Callable, Optional
 from ai_interviewer.agents.active_listening import generate_turn
 from ai_interviewer.agents.orchestrator import decide_action
 from ai_interviewer.agents.followup import generate_probe
+from ai_interviewer.agents.summariser import summarise_async
 from ai_interviewer.agents.topic_evaluator import evaluate_momentum_async
 from ai_interviewer.llm import LLMConfig
 from ai_interviewer.protocol import Protocol
@@ -81,6 +82,16 @@ def _consume_momentum(future: Optional[Future], state: InterviewState) -> None:
         state.topic_momentum = True  # Safe default: keep probing
 
 
+def _consume_summary(future: Optional[Future], state: InterviewState) -> None:
+    """Read the async Summariser result if available; keep prior summary on timeout/error."""
+    if future is None:
+        return
+    try:
+        state.conversation_summary = future.result(timeout=1.0)
+    except Exception:
+        pass  # Keep prior summary on failure
+
+
 # ---------------------------------------------------------------------------
 # Headless runner — no terminal I/O; used by the evaluation pipeline
 # ---------------------------------------------------------------------------
@@ -107,6 +118,7 @@ def run_interview_headless(
     state = _init_state(protocol)
     topics = protocol.topics
     momentum_future: Optional[Future] = None
+    summary_future: Optional[Future] = None
 
     interviewer_turn = generate_turn(
         topics[0].guiding_question, state, topics, cfg, is_first_turn=True
@@ -134,10 +146,11 @@ def run_interview_headless(
         state.transcript.append({"role": "interviewer", "content": interviewer_turn})
         state.transcript.append({"role": "interviewee", "content": response})
 
-        # ── Consume previous momentum signal ──────────────────────────────────
+        # ── Consume previous async signals ────────────────────────────────────
         _consume_momentum(momentum_future, state)
         if momentum_future is not None:
             logger.info("[TopicEvaluator] consumed — continue_probing=%s", state.topic_momentum)
+        _consume_summary(summary_future, state)
 
         # ── Orchestrator: select action ───────────────────────────────────────
         action = decide_action(state, topics)
@@ -150,8 +163,10 @@ def run_interview_headless(
             state.transcript.append({"role": "interviewer", "content": interviewer_turn})
             break
 
-        # ── Kick off async Topic Evaluator for next turn ──────────────────────
+        # ── Kick off async agents for next turn ───────────────────────────────
         momentum_future = evaluate_momentum_async(state, topics, cfg)
+        if len(state.transcript) > 8:
+            summary_future = summarise_async(state, cfg)
 
         # ── Generate core content ─────────────────────────────────────────────
         probe_result: Optional[dict] = None
@@ -183,6 +198,7 @@ def run_interview(protocol: Protocol, cfg: LLMConfig) -> None:
     state = _init_state(protocol)
     topics = protocol.topics
     momentum_future: Optional[Future] = None
+    summary_future: Optional[Future] = None
 
     W = 60
     print(f"\n{'=' * W}")
@@ -239,6 +255,7 @@ def run_interview(protocol: Protocol, cfg: LLMConfig) -> None:
         _consume_momentum(momentum_future, state)
         if momentum_future is not None:
             logger.info("[TopicEvaluator] consumed — continue_probing=%s", state.topic_momentum)
+        _consume_summary(summary_future, state)
 
         action = decide_action(state, topics)
         logger.info("[Orchestrator] action=%s", action)
@@ -250,6 +267,8 @@ def run_interview(protocol: Protocol, cfg: LLMConfig) -> None:
             break
 
         momentum_future = evaluate_momentum_async(state, topics, cfg)
+        if len(state.transcript) > 8:
+            summary_future = summarise_async(state, cfg)
 
         probe_result: Optional[dict] = None
 
