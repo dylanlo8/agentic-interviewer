@@ -1,8 +1,21 @@
 from __future__ import annotations
 
+import re
+
 from ai_interviewer.llm import LLMConfig, _invoke_json
 from ai_interviewer.prompts import ACTIVE_LISTENING_SYSTEM, build_context
 from ai_interviewer.state import InterviewState
+
+
+def _strip_trailing_questions(text: str) -> str:
+    """Remove any sentences ending with '?' from the end of the prefix.
+
+    Guards against the LLM ignoring the 'never ask a question in the prefix'
+    rule, which would otherwise cause the core question to appear twice.
+    """
+    sentences = re.split(r'(?<=[.!?])\s+', text.strip())
+    clean = [s for s in sentences if not s.strip().endswith("?")]
+    return " ".join(clean).strip()
 
 
 def generate_turn(
@@ -26,7 +39,9 @@ def generate_turn(
         cfg.active_listening_model,
         cfg.temperature,
         ACTIVE_LISTENING_SYSTEM,
-        f"Generate a prefix that leads naturally into the following.\n\nCore content:\n{core_content}\n\n{context}",
+        f"Decide whether an acknowledgement prefix is needed before the following question, then write one only if it is.\n\nNext question:\n{core_content}\n\n{context}",
     )
-    prefix = result.get("prefix", "").strip()
+    if not result.get("use_prefix", False):
+        return core_content
+    prefix = _strip_trailing_questions(result.get("prefix", "").strip())
     return f"{prefix} {core_content}" if prefix else core_content
