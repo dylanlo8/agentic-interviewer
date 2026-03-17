@@ -1,0 +1,87 @@
+{
+  "protocol_name": "Meaning in Life — General Adult Interview",
+  "version": "1.1",
+  "total_minutes": 45,
+  "wrapup_minutes": 5,
+  "max_followups_per_thread": 6,
+  "description": "This study explores what makes life feel meaningful to you — the people, activities, values, and experiences that give your life a sense of purpose and significance. Your responses will help researchers better understand the diverse sources of meaning that adults draw on in everyday life. We are also interested in how external conditions, including government policy, and your own personal choices might strengthen that sense of meaning. There are no right or wrong answers — every perspective is valuable, and you are welcome to share as much or as little as you feel comfortable with.",
+  "topics": [
+    {
+      "topic_id": "opening_context",
+      "topic_title": "Opening & Context",
+      "budget_minutes": 5,
+      "guiding_question": "Could you tell me which aspects of your life make it meaningful to you?",
+      "objectives": [
+        "Establish rapport and invite the participant to define meaning in their own terms",
+        "Identify the initial, most salient sources of meaning the participant spontaneously raises",
+        "Surface the language and framing the participant uses to talk about a meaningful life"
+      ]
+    },
+    {
+      "topic_id": "relationships_community",
+      "topic_title": "Relationships & Community",
+      "budget_minutes": 9,
+      "guiding_question": "Tell me about the people or communities in your life that feel most important to you — how do they figure into what makes your life feel meaningful?",
+      "objectives": [
+        "Explore the nature and depth of relationships (family, friends, community) that contribute to the participant's sense of meaning",
+        "Understand how belonging, connection, or responsibility to others shapes the participant's experience of purpose",
+        "Identify specific moments or interactions that illustrate when relationships feel most meaningful"
+      ]
+    },
+    {
+      "topic_id": "work_purpose_contribution",
+      "topic_title": "Work, Purpose & Contribution",
+      "budget_minutes": 9,
+      "guiding_question": "Walk me through how your work — paid or unpaid — fits into your sense of meaning, if at all.",
+      "objectives": [
+        "Understand whether and how the participant's work or productive activities contribute to their sense of purpose",
+        "Explore how contributing to something beyond oneself (e.g. society, a cause, an organisation) factors into the participant's meaning-making",
+        "Capture tensions or contradictions the participant experiences between work demands and a meaningful life"
+      ]
+    },
+    {
+      "topic_id": "values_beliefs_identity",
+      "topic_title": "Values, Beliefs & Identity",
+      "budget_minutes": 7,
+      "guiding_question": "How do your personal values or beliefs — whatever those look like for you — shape what gives your life a sense of meaning?",
+      "objectives": [
+        "Identify the core values, worldviews, or belief systems (religious, philosophical, ethical) the participant draws on to make sense of their life",
+        "Explore how the participant's sense of identity connects to their experience of meaning",
+        "Understand the origins of these values and whether they have shifted over time"
+      ]
+    },
+    {
+      "topic_id": "government_and_society",
+      "topic_title": "Government & Social Conditions",
+      "budget_minutes": 7,
+      "guiding_question": "Thinking about the world outside your personal life — what do you think the government or society could do to help people live more meaningful lives?",
+      "objectives": [
+        "Explore which structural, social, or policy conditions the participant believes enable or undermine a sense of meaning",
+        "Identify specific government actions or societal changes the participant views as most impactful for meaning",
+        "Understand how the participant relates their personal experience of meaning to broader social or political factors"
+      ]
+    },
+    {
+      "topic_id": "personal_agency",
+      "topic_title": "Personal Agency & Growth",
+      "budget_minutes": 5,
+      "guiding_question": "Lastly, are there ways in which you think you could personally enhance your sense of meaning in life?",
+      "objectives": [
+        "Surface the participant's sense of personal agency in actively shaping a more meaningful life",
+        "Identify concrete practices, changes, or aspirations the participant associates with deepening their sense of meaning",
+        "Explore any perceived barriers — internal or external — that the participant feels stand between them and a more meaningful life"
+      ]
+    },
+    {
+      "topic_id": "closing_reflection",
+      "topic_title": "Closing Reflections",
+      "budget_minutes": 3,
+      "guiding_question": "Is there anything about what gives your life meaning that feels important to you, that we haven't had a chance to talk about yet?",
+      "objectives": [
+        "Give the participant space to raise any sources of meaning not yet captured in the interview",
+        "Invite the participant to reflect on the conversation as a whole and whether it felt representative of their experience",
+        "Close the interview respectfully and affirm the value of the participant's contribution"
+      ]
+    }
+  ]
+}

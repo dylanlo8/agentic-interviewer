@@ -25,7 +25,6 @@ Usage:
 
 The --interviewer flag selects which interviewer drives the conversation:
     agentic     — the multi-agent system (default)
-    scripted    — scripted baseline (no probing)
     single_llm  — single GPT-4o-mini baseline
 """
 
@@ -33,6 +32,7 @@ import argparse
 import json
 import logging
 import os
+import re
 from datetime import datetime, timezone
 
 from ai_interviewer.llm import LLMConfig
@@ -45,6 +45,11 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(message)s", datef
 logger = logging.getLogger(__name__)
 
 RESULTS_DIR = Path(__file__).parent / "results"
+
+
+def _protocol_slug(name: str) -> str:
+    """Convert a protocol name to a safe directory name."""
+    return re.sub(r"[^\w]+", "_", name.lower()).strip("_")
 
 
 def _agentic_run(protocol, cfg, agent, minutes_per_turn) -> list[dict]:
@@ -88,25 +93,32 @@ def run_simulation(
         topic_eval_model=os.environ.get("TOPIC_EVAL_MODEL", model),
         topic_eval_base_url=os.environ.get("TOPIC_EVAL_BASE_URL") or None,
         followup_model=os.environ.get("FOLLOWUP_MODEL", model),
+        followup_base_url=os.environ.get("FOLLOWUP_BASE_URL") or None,
         active_listening_model=os.environ.get("ACTIVE_LISTENING_MODEL", model),
         summariser_model=os.environ.get("SUMMARISER_MODEL", model),
         summariser_base_url=os.environ.get("SUMMARISER_BASE_URL") or None,
         temperature=temperature,
     )
 
-    logger.info("Starting simulation: interviewer=%s | agent=%s | protocol=%s",
-                interviewer_id, agent_id, protocol.protocol_name)
+    n_memories = len(agent.memory_stream.seq_nodes)
+    logger.info("Starting simulation: interviewer=%s | agent=%s | protocol=%s | memories=%d",
+                interviewer_id, agent_id, protocol.protocol_name, n_memories)
+    if n_memories == 0:
+        logger.warning("Agent %s has no seeded memories — run eval/seed_agent.py first", agent_id)
 
     if interviewer_id == "agentic":
         transcript = _run_agentic(protocol, cfg, agent, minutes_per_turn)
-    elif interviewer_id == "scripted":
-        from eval.baselines.scripted import run_scripted
-        transcript = run_scripted(protocol, agent, minutes_per_turn)
     elif interviewer_id == "single_llm":
         from eval.baselines.single_llm import run_single_llm
         transcript = run_single_llm(protocol, agent, minutes_per_turn, model, temperature)
     else:
-        raise ValueError(f"Unknown interviewer: {interviewer_id!r}. Choose: agentic, scripted, single_llm")
+        raise ValueError(f"Unknown interviewer: {interviewer_id!r}. Choose: agentic, single_llm")
+
+    # Persist accumulated interview memories back to disk so cross-protocol runs
+    # share realistic recall: pre-seeded facts remain stable; interview details
+    # surface via semantic retrieval and naturally fade with relevance over time.
+    agent.save(str(agent_folder))
+    logger.info("Agent memory updated → %s", agent_folder)
 
     result = {
         "interviewer_id": interviewer_id,
@@ -118,9 +130,10 @@ def run_simulation(
         "transcript": transcript,
     }
 
-    RESULTS_DIR.mkdir(exist_ok=True)
+    protocol_dir = RESULTS_DIR / _protocol_slug(protocol.protocol_name)
+    protocol_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    out_path = RESULTS_DIR / f"{interviewer_id}_{agent_id}_{ts}.json"
+    out_path = protocol_dir / f"{interviewer_id}_{agent_id}_{ts}.json"
     out_path.write_text(json.dumps(result, indent=2, ensure_ascii=False))
     logger.info("Transcript saved → %s", out_path)
     return out_path
@@ -163,7 +176,7 @@ def main() -> None:
     parser.add_argument("--protocol", required=True, help="Path to protocol JSON")
     parser.add_argument("--agent", required=True, help="Path to genagents agent folder")
     parser.add_argument("--interviewer", default="agentic",
-                        choices=["agentic", "scripted", "single_llm"],
+                        choices=["agentic", "single_llm"],
                         help="Which interviewer to use (default: agentic)")
     parser.add_argument("--minutes-per-turn", type=float, default=1.5,
                         help="Simulated minutes credited per interviewee turn (default: 1.5)")

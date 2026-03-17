@@ -1,0 +1,54 @@
+{
+  "protocol_name": "Educational & Occupational Choice Interview",
+  "version": "1.0",
+  "total_minutes": 45,
+  "wrapup_minutes": 5,
+  "max_followups_per_thread": 6,
+  "description": "This study explores the reasons behind your educational and career choices — what drew you to your field of study, how you thought about STEM subjects specifically, and what shaped the job or profession you pursued afterward. Your responses will help researchers better understand the diverse factors that influence how people navigate education and work. There are no right or wrong answers — every journey is different, and we are interested in yours.",
+  "topics": [
+    {
+      "topic_id": "educational_choice",
+      "topic_title": "Choice of Field / Major",
+      "budget_minutes": 14,
+      "guiding_question": "Hello! I'm glad to have the opportunity to speak about your educational journey today. Could you share the reasons that made you choose your field of study at the highest level of your education?",
+      "objectives": [
+        "Identify the primary motivations — intrinsic, extrinsic, social, or circumstantial — that led the participant to their field or level of education",
+        "Explore how influences such as family, peers, prior experiences, or personal interests shaped the educational decision",
+        "Understand whether the choice felt deliberate and self-directed or was shaped by constraints and default paths"
+      ]
+    },
+    {
+      "topic_id": "stem_decision",
+      "topic_title": "STEM Pursuit or Avoidance",
+      "budget_minutes": 8,
+      "guiding_question": "Next, I would like to focus further on why or why not you pursued a STEM subject (Science, Technology, Engineering, or Mathematics) as your major. Could you share the reasons specifically for this decision, either for or against it?",
+      "objectives": [
+        "Surface the specific factors that drew the participant toward or away from STEM disciplines",
+        "Explore the role of identity, ability beliefs, and prior exposure to STEM in shaping this decision",
+        "Identify any social or structural influences — such as gender norms, school environment, or role models — that affected the participant's relationship with STEM"
+      ]
+    },
+    {
+      "topic_id": "occupational_choice",
+      "topic_title": "Choice of Occupation & Career",
+      "budget_minutes": 14,
+      "guiding_question": "Lastly, I would like to shift the focus from education to occupation. Could you share the reasons for choosing your job and professional field following your studies?",
+      "objectives": [
+        "Understand how and why the participant transitioned from their educational background into their chosen occupation",
+        "Explore the degree of continuity or discontinuity between the participant's field of study and their career path",
+        "Identify the values, opportunities, constraints, or turning points that most shaped the participant's occupational decisions"
+      ]
+    },
+    {
+      "topic_id": "closing_reflection",
+      "topic_title": "Closing Reflections",
+      "budget_minutes": 4,
+      "guiding_question": "Looking back across your education and career, is there anything that shaped those choices that you feel we haven't had a chance to talk about yet?",
+      "objectives": [
+        "Give the participant space to surface any motivations or experiences not yet captured in the interview",
+        "Invite reflection on how the participant now views the choices they made in education and work",
+        "Close the interview respectfully and signal the transition to the final summary and evaluation"
+      ]
+    }
+  ]
+}

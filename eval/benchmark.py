@@ -11,24 +11,29 @@ from dotenv import load_dotenv  # noqa: E402
 load_dotenv()
 
 """
-Benchmark runner — runs all interviewers × all agents and produces a comparison report.
+Benchmark runner — samples agents from a population, randomises interviewer order
+per agent, and runs all simulations. Transcripts are saved to:
+
+    eval/results/<protocol_name>/<interviewer_id>_<agent_id>_<timestamp>.json
+
+No judging is performed here. To score transcripts run:
+
+    python eval/judge.py --dir eval/results/<protocol_name>/ --protocol <protocol.json>
 
 Usage:
     python eval/benchmark.py \\
-        --protocol notebooks/protocol.json \\
-        --agents eval/agents/ \\
-        --interviewers agentic scripted single_llm \\
-        --minutes-per-turn 2.0 \\
-        --judge-model gpt-4o
-
-Results are saved to eval/results/benchmark_<timestamp>.json
-A summary table is printed to the terminal.
+        --protocol sample_protocols/protocol.json \\
+        --population genagents/agent_bank/populations/gss_agents \\
+        --n-agents 5 \\
+        --interviewers agentic single_llm \\
+        --minutes-per-turn 2.0
 """
 
 import argparse
 import json
 import logging
 import os
+import random
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -40,42 +45,66 @@ logger = logging.getLogger(__name__)
 
 RESULTS_DIR = Path(__file__).parent / "results"
 
-DIMENSIONS = ["topic_coverage", "response_depth", "question_quality", "active_listening", "pacing"]
 
+# ---------------------------------------------------------------------------
+# Agent sampling
+# ---------------------------------------------------------------------------
+
+def sample_agents(population_dir: Path, n: int, seed: int | None = None) -> list[Path]:
+    """Randomly sample up to n agent folders from a population directory."""
+    all_folders = [p for p in population_dir.iterdir() if p.is_dir()]
+    if not all_folders:
+        raise ValueError(f"No agent folders found in {population_dir}")
+    rng = random.Random(seed)
+    sampled = rng.sample(all_folders, min(n, len(all_folders)))
+    logger.info("Sampled %d agents from %s", len(sampled), population_dir)
+    return sampled
+
+
+# ---------------------------------------------------------------------------
+# Benchmark runner
+# ---------------------------------------------------------------------------
 
 def run_benchmark(
     protocol_path: Path,
-    agents_dir: Path,
+    population_dir: Path,
     interviewer_ids: list[str],
+    n_agents: int = 5,
     minutes_per_turn: float = 2.0,
     interviewer_model: str = "gpt-4o-mini",
-    judge_model: str = "gpt-4o",
     temperature: float = 0.2,
-) -> Path:
+    seed: int | None = None,
+) -> list[Path]:
     """
-    Run all combinations of interviewers × agents, judge each transcript,
-    and write a benchmark report. Returns the path to the report JSON.
+    Sample agents, run each through all interviewers in randomised order,
+    and save transcripts organised by protocol name.
+    Returns the list of transcript paths created.
     """
     from ai_interviewer.protocol import load_protocol
-    from eval.judge import judge_transcript
     from eval.simulate import run_simulation
 
     protocol = load_protocol(protocol_path)
-    agent_folders = sorted(p for p in agents_dir.iterdir() if p.is_dir())
+    agent_folders = sample_agents(population_dir, n_agents, seed=seed)
 
-    if not agent_folders:
-        raise ValueError(f"No agent folders found in {agents_dir}")
+    # For each agent, randomly shuffle interviewer order to counterbalance
+    # order effects (agent memory persists across runs within a benchmark).
+    rng = random.Random(seed)
+    agent_assignments: list[dict] = []
+    for folder in agent_folders:
+        order = rng.sample(interviewer_ids, len(interviewer_ids))
+        agent_assignments.append({"folder": folder, "interviewer_order": order})
 
-    logger.info("Benchmark: %d interviewers × %d agents = %d simulations",
-                len(interviewer_ids), len(agent_folders), len(interviewer_ids) * len(agent_folders))
+    total = sum(len(a["interviewer_order"]) for a in agent_assignments)
+    logger.info("Benchmark: %d agents × %d interviewers = %d simulations",
+                len(agent_folders), len(interviewer_ids), total)
 
-    all_scores: list[dict] = []
+    transcript_paths: list[Path] = []
 
-    for interviewer_id in interviewer_ids:
-        for agent_folder in agent_folders:
+    for assignment in agent_assignments:
+        agent_folder = assignment["folder"]
+        for interviewer_id in assignment["interviewer_order"]:
             logger.info("─── %s × %s ───", interviewer_id, agent_folder.name)
 
-            # Run simulation → transcript JSON
             transcript_path = run_simulation(
                 protocol_path=protocol_path,
                 agent_folder=agent_folder,
@@ -84,95 +113,9 @@ def run_benchmark(
                 model=interviewer_model,
                 temperature=temperature,
             )
+            transcript_paths.append(transcript_path)
 
-            # Judge transcript → scores JSON
-            scores = judge_transcript(
-                transcript_path=transcript_path,
-                protocol=protocol,
-                model=judge_model,
-                temperature=0.0,
-            )
-            all_scores.append(scores)
-
-    # Aggregate and save report
-    report = _build_report(interviewer_ids, all_scores, protocol.protocol_name)
-    RESULTS_DIR.mkdir(exist_ok=True)
-    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    report_path = RESULTS_DIR / f"benchmark_{ts}.json"
-    report_path.write_text(json.dumps(report, indent=2, ensure_ascii=False))
-    logger.info("Benchmark report saved → %s", report_path)
-
-    _print_summary_table(report)
-    return report_path
-
-
-# ---------------------------------------------------------------------------
-# Aggregation
-# ---------------------------------------------------------------------------
-
-def _build_report(interviewer_ids: list[str], all_scores: list[dict], protocol_name: str) -> dict:
-    """Aggregate per-run scores into means per interviewer."""
-    # Group by interviewer
-    by_interviewer: dict[str, list[dict]] = {iid: [] for iid in interviewer_ids}
-    for s in all_scores:
-        iid = s.get("interviewer_id", "unknown")
-        if iid in by_interviewer:
-            by_interviewer[iid].append(s)
-
-    aggregated = {}
-    for iid, runs in by_interviewer.items():
-        if not runs:
-            continue
-        dim_means = {}
-        for dim in DIMENSIONS:
-            values = [r["scores"][dim]["score"] for r in runs if dim in r.get("scores", {})]
-            dim_means[dim] = round(sum(values) / len(values), 2) if values else None
-        overalls = [r["overall"] for r in runs if r.get("overall") is not None]
-        aggregated[iid] = {
-            "runs": len(runs),
-            "dimension_means": dim_means,
-            "overall_mean": round(sum(overalls) / len(overalls), 2) if overalls else None,
-        }
-
-    return {
-        "protocol_name": protocol_name,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "interviewers": aggregated,
-        "individual_runs": all_scores,
-    }
-
-
-def _print_summary_table(report: dict) -> None:
-    header_dims = ["Coverage", "Depth", "Q-Quality", "Active-L", "Pacing", "MEAN"]
-    col_w = 10
-    name_w = 16
-
-    separator = "-" * (name_w + col_w * len(header_dims) + 2)
-    header = f"{'Interviewer':<{name_w}}" + "".join(f"{h:>{col_w}}" for h in header_dims)
-
-    print(f"\n{'=' * len(separator)}")
-    print(f"  Benchmark: {report['protocol_name']}")
-    print(f"{'=' * len(separator)}")
-    print(header)
-    print(separator)
-
-    for iid, agg in report["interviewers"].items():
-        dims = agg["dimension_means"]
-        row_vals = [
-            dims.get("topic_coverage"),
-            dims.get("response_depth"),
-            dims.get("question_quality"),
-            dims.get("active_listening"),
-            dims.get("pacing"),
-            agg.get("overall_mean"),
-        ]
-        row = f"{iid:<{name_w}}" + "".join(
-            f"{(f'{v:.1f}' if v is not None else '-'):>{col_w}}" for v in row_vals
-        )
-        print(row)
-
-    print(separator)
-    print(f"  (n={list(report['interviewers'].values())[0]['runs']} agents per interviewer)\n")
+    return transcript_paths
 
 
 # ---------------------------------------------------------------------------
@@ -180,32 +123,44 @@ def _print_summary_table(report: dict) -> None:
 # ---------------------------------------------------------------------------
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run full benchmark: interviewers × agents")
+    parser = argparse.ArgumentParser(
+        description="Run full benchmark: interviewers × sampled agents. Saves transcripts only — no judging."
+    )
     parser.add_argument("--protocol", required=True, help="Path to protocol JSON")
-    parser.add_argument("--agents", required=True, help="Directory containing agent folders")
+    parser.add_argument("--population", required=True,
+                        help="Directory of genagents agent folders to sample from")
+    parser.add_argument("--n-agents", type=int, default=5,
+                        help="Number of agents to randomly sample (default: 5)")
     parser.add_argument("--interviewers", nargs="+",
-                        default=["agentic", "scripted", "single_llm"],
-                        choices=["agentic", "scripted", "single_llm"],
-                        help="Interviewer systems to benchmark (default: all three)")
+                        default=["agentic", "single_llm"],
+                        choices=["agentic", "single_llm"],
+                        help="Interviewer systems to benchmark (default: all)")
     parser.add_argument("--minutes-per-turn", type=float, default=2.0,
                         help="Simulated minutes per interviewee turn (default: 2.0)")
     parser.add_argument("--interviewer-model", default="gpt-4o-mini",
                         help="LLM model for agentic/single_llm interviewers (default: gpt-4o-mini)")
-    parser.add_argument("--judge-model", default="gpt-4o",
-                        help="LLM model for the transcript judge (default: gpt-4o)")
     parser.add_argument("--temperature", type=float, default=0.2)
+    parser.add_argument("--seed", type=int, default=None,
+                        help="Random seed for reproducible agent sampling and order assignment")
     args = parser.parse_args()
 
-    report_path = run_benchmark(
+    transcript_paths = run_benchmark(
         protocol_path=Path(args.protocol),
-        agents_dir=Path(args.agents),
+        population_dir=Path(args.population),
         interviewer_ids=args.interviewers,
+        n_agents=args.n_agents,
         minutes_per_turn=args.minutes_per_turn,
         interviewer_model=args.interviewer_model,
-        judge_model=args.judge_model,
         temperature=args.temperature,
+        seed=args.seed,
     )
-    print(f"\nFull report: {report_path}")
+
+    print(f"\n{len(transcript_paths)} transcript(s) saved:")
+    for p in transcript_paths:
+        print(f"  {p}")
+    if transcript_paths:
+        print(f"\nTo judge, run:")
+        print(f"  python eval/judge.py --dir {transcript_paths[0].parent} --protocol {args.protocol}")
 
 
 if __name__ == "__main__":

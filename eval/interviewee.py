@@ -70,6 +70,17 @@ def load_agent(agent_folder: str | Path) -> GenerativeAgent:
     return GenerativeAgent(agent_folder=str(agent_folder))
 
 
+def reset_agent_memory(agent: GenerativeAgent) -> None:
+    """
+    Clear the agent's memory stream (nodes + embeddings) in-place.
+    scratch.json (demographics) is preserved.
+    Call agent.save() afterwards to persist the reset to disk.
+    """
+    agent.memory_stream.seq_nodes = []
+    agent.memory_stream.id_to_node = {}
+    agent.memory_stream.embeddings = {}
+
+
 def create_agent(demographics: dict, memories: list[str]) -> GenerativeAgent:
     """
     Build a new agent from scratch.
@@ -88,24 +99,30 @@ def create_agent(demographics: dict, memories: list[str]) -> GenerativeAgent:
 
 def respond(agent: GenerativeAgent, transcript: list[dict]) -> str:
     """
-    Generate the agent's next response given the conversation so far.
+    Generate the agent's next response given the conversation so far,
+    then append the exchange to the agent's memory stream.
 
     transcript: list of {"role": "interviewer"|"interviewee", "content": str}
                 as stored in InterviewState.transcript.
+                The last entry must be the current interviewer turn.
 
-    The transcript is converted to the genagents curr_dialogue format:
-        [(speaker_name, text), ...]
+    Within a run: curr_dialogue provides full context for consistency.
+    Across runs: accumulated memories surface via semantic retrieval, simulating
+    realistic recall of prior interviews (with natural fading of less relevant detail).
+    Call agent.save() after each run to persist memories across protocol runs.
     """
     agent_name = _get_name(agent)
     curr_dialogue = []
     for turn in transcript:
-        if turn["role"] == "interviewer":
-            speaker = "Interviewer"
-        else:
-            speaker = agent_name
+        speaker = "Interviewer" if turn["role"] == "interviewer" else agent_name
         curr_dialogue.append((speaker, turn["content"]))
 
-    return agent.utterance(curr_dialogue=curr_dialogue, context="")
+    response = agent.utterance(curr_dialogue=curr_dialogue, context="")
+
+    last_question = transcript[-1]["content"] if transcript else ""
+    agent.remember(f"Interviewer: {last_question}\n\n{agent_name}: {response}\n\n")
+
+    return response
 
 
 def _get_name(agent: GenerativeAgent) -> str:
