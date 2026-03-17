@@ -1,0 +1,76 @@
+{
+  "protocol_name": "Changes in Cost of Living Interview",
+  "version": "1.0",
+  "total_minutes": 45,
+  "wrapup_minutes": 5,
+  "max_followups_per_thread": 6,
+  "description": "This study explores how changes in the cost of living over the past three years have affected you — what you have noticed, how your daily life has changed, and how you have responded. Your responses will help researchers better understand the real, lived impact of inflation on people's lives. There are no right or wrong answers — every experience is different, and we are interested in yours.",
+  "topics": [
+    {
+      "topic_id": "overall_concern",
+      "topic_title": "Overall Concern & Awareness",
+      "budget_minutes": 6,
+      "guiding_question": "Hello! I'm glad to have the opportunity to speak with you about changes in the cost of living. How concerned would you say you are about changes in the cost of living?",
+      "objectives": [
+        "Establish the participant's baseline level of concern about inflation and cost-of-living changes",
+        "Surface the spontaneous language and framing the participant uses to describe their relationship with cost-of-living pressures",
+        "Identify which areas of spending or daily life the participant immediately associates with cost-of-living changes"
+      ]
+    },
+    {
+      "topic_id": "everyday_spending",
+      "topic_title": "Impact on Everyday Spending",
+      "budget_minutes": 9,
+      "guiding_question": "Tell me about how your day-to-day spending has changed over the past three years — what have you noticed most?",
+      "objectives": [
+        "Identify the specific categories of expenditure — food, energy, housing, transport — where the participant has felt the most pressure",
+        "Explore concrete changes in purchasing behaviour the participant has made in response to rising costs",
+        "Capture the participant's subjective experience of price changes, including whether increases felt sudden or gradual"
+      ]
+    },
+    {
+      "topic_id": "financial_situation",
+      "topic_title": "Financial Situation & Security",
+      "budget_minutes": 9,
+      "guiding_question": "How has your overall financial situation changed over this period — in terms of things like savings, debt, or feeling financially secure?",
+      "objectives": [
+        "Understand whether and how inflation has eroded the participant's savings, disposable income, or financial buffer",
+        "Explore how the participant's sense of financial security and future planning has shifted over the past three years",
+        "Identify any significant financial decisions — taking on debt, drawing down savings, delaying purchases — that were driven by cost-of-living pressures"
+      ]
+    },
+    {
+      "topic_id": "work_and_income",
+      "topic_title": "Work, Income & Compensation",
+      "budget_minutes": 8,
+      "guiding_question": "Walk me through how your income or work situation has played into how you've experienced these cost-of-living changes.",
+      "objectives": [
+        "Explore whether the participant's income has kept pace with, outstripped, or fallen behind rising costs",
+        "Understand whether cost-of-living pressures have influenced the participant's decisions about work — such as taking on extra hours, changing jobs, or re-entering the workforce",
+        "Capture any tensions the participant experiences between wage levels and the cost of maintaining their standard of living"
+      ]
+    },
+    {
+      "topic_id": "lifestyle_and_wellbeing",
+      "topic_title": "Lifestyle Changes & Wellbeing",
+      "budget_minutes": 7,
+      "guiding_question": "Beyond finances, how have rising costs affected your daily life or your sense of wellbeing over the past three years?",
+      "objectives": [
+        "Surface the broader personal and emotional toll — stress, anxiety, reduced quality of life — that cost-of-living changes have had on the participant",
+        "Explore changes to social activities, leisure, or relationships that have resulted from tighter budgets",
+        "Understand how the participant has adapted their lifestyle and whether those adaptations feel temporary or permanent"
+      ]
+    },
+    {
+      "topic_id": "closing_reflection",
+      "topic_title": "Closing Reflections",
+      "budget_minutes": 6,
+      "guiding_question": "Is there anything else about how changes in the cost of living have affected you that feels important, that we haven't had a chance to discuss yet?",
+      "objectives": [
+        "Give the participant space to raise any impacts or experiences not yet captured in the interview",
+        "Invite the participant to reflect on how they expect the cost-of-living situation to develop and what that means for them",
+        "Close the interview respectfully and affirm the value of the participant's contribution"
+      ]
+    }
+  ]
+}

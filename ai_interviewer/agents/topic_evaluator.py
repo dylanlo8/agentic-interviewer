@@ -37,6 +37,7 @@ def _evaluate(snapshot: dict, cfg: LLMConfig) -> bool:
         cfg.temperature,
         TOPIC_EVALUATOR_SYSTEM,
         f"Evaluate momentum for the current topic.\n\n{snapshot['context']}",
+        base_url=cfg.topic_eval_base_url,
     )
     continue_probing = bool(result.get("continue_probing", True))
     reason = result.get("reason", "")

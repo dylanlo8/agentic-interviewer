@@ -1,0 +1,76 @@
+{
+  "protocol_name": "Trust in Government Interview",
+  "version": "1.0",
+  "total_minutes": 45,
+  "wrapup_minutes": 5,
+  "max_followups_per_thread": 6,
+  "description": "This study explores your level of trust in your current government — what shapes it, where it comes from, and how it has changed over time. Your responses will help researchers better understand the diverse factors that lead people to trust or distrust the institutions that govern them. There are no right or wrong answers — all perspectives are equally valuable, and you are welcome to share as much or as little as you feel comfortable with.",
+  "topics": [
+    {
+      "topic_id": "overall_trust",
+      "topic_title": "Overall Trust Level",
+      "budget_minutes": 6,
+      "guiding_question": "Hello! I'm glad to have the opportunity to speak with you about 'trust' in governments. Would you say that you generally trust your current government?",
+      "objectives": [
+        "Establish the participant's baseline disposition toward their government — trusting, distrusting, or ambivalent",
+        "Surface the spontaneous language and framing the participant uses to characterise trust in government",
+        "Identify which aspects of government (e.g. specific institutions, politicians, policies) the participant has in mind when forming their overall assessment"
+      ]
+    },
+    {
+      "topic_id": "government_performance",
+      "topic_title": "Perceived Government Performance",
+      "budget_minutes": 9,
+      "guiding_question": "Walk me through how you feel your government has been performing — what comes to mind when you think about what it has or hasn't delivered?",
+      "objectives": [
+        "Understand which policy areas or government actions the participant uses as evidence for their trust assessment",
+        "Explore how the participant weighs competence and effectiveness against other dimensions of trustworthiness",
+        "Identify concrete events or experiences that have reinforced or undermined the participant's confidence in government performance"
+      ]
+    },
+    {
+      "topic_id": "integrity_and_values",
+      "topic_title": "Integrity, Honesty & Values",
+      "budget_minutes": 9,
+      "guiding_question": "How much does the honesty and integrity of politicians and officials factor into how much you trust your government?",
+      "objectives": [
+        "Explore the role of perceived corruption, transparency, and truthfulness in shaping the participant's trust",
+        "Understand whether the participant feels the government shares or disregards their personal values",
+        "Surface any specific incidents or patterns of behaviour that the participant associates with governmental integrity or its absence"
+      ]
+    },
+    {
+      "topic_id": "personal_experience",
+      "topic_title": "Personal Experience with Government",
+      "budget_minutes": 8,
+      "guiding_question": "Tell me about any personal experiences you've had with government services, institutions, or officials — how have those shaped how you feel about your government?",
+      "objectives": [
+        "Capture direct encounters with government that have concretely influenced the participant's level of trust",
+        "Understand how everyday interactions with public institutions — such as healthcare, tax, or welfare — colour the participant's broader view",
+        "Explore whether the participant's trust is driven more by lived experience or by information received through media and social networks"
+      ]
+    },
+    {
+      "topic_id": "sources_of_information",
+      "topic_title": "Information & Media",
+      "budget_minutes": 7,
+      "guiding_question": "How do you tend to form your views about what the government is doing — where does your information usually come from?",
+      "objectives": [
+        "Identify the information sources — news, social media, personal networks, official channels — the participant relies on to assess government behaviour",
+        "Explore how the participant evaluates the credibility of those sources and whether distrust in media interacts with distrust in government",
+        "Understand how exposure to different narratives or political viewpoints shapes the participant's overall trust disposition"
+      ]
+    },
+    {
+      "topic_id": "closing_reflection",
+      "topic_title": "Closing Reflections",
+      "budget_minutes": 6,
+      "guiding_question": "Is there anything else about what shapes your trust — or lack of trust — in your government that you feel is important and that we haven't had a chance to discuss yet?",
+      "objectives": [
+        "Give the participant space to raise any dimensions of trust not yet captured in the interview",
+        "Invite the participant to reflect on whether their trust level has changed over time and what drove those shifts",
+        "Close the interview respectfully and affirm the value of the participant's contribution"
+      ]
+    }
+  ]
+}

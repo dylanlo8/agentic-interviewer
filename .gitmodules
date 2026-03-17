@@ -1,0 +1,3 @@
+[submodule "genagents"]
+	path = genagents
+	url = https://github.com/StanfordHCI/genagents.git

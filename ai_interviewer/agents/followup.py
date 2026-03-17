@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ai_interviewer.llm import LLMConfig, _invoke_json
-from ai_interviewer.prompts import SOCRATIC_SYSTEM, build_context
+from ai_interviewer.prompts import FOLLOWUP_SYSTEM, build_context
 from ai_interviewer.state import InterviewState
 
 
@@ -16,10 +16,11 @@ def generate_probe(state: InterviewState, topics: list, cfg: LLMConfig) -> dict:
     """
     context = build_context(state, topics)
     result = _invoke_json(
-        cfg.socratic_model,
+        cfg.followup_model,
         cfg.temperature,
-        SOCRATIC_SYSTEM,
+        FOLLOWUP_SYSTEM,
         f"Generate a follow-up probe.\n\n{context}",
+        base_url=cfg.followup_base_url,
     )
     # Ensure expected keys exist
     result.setdefault("probe_question", "Can you tell me more about that?")

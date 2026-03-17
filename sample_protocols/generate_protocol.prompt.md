@@ -1,9 +1,3 @@
-# Protocol Generation Prompt
-
-Use this prompt with any capable LLM (e.g. Claude, GPT-4o) to generate a new interview protocol JSON file compatible with the Agentic Interviewer system.
-
----
-
 ## Prompt
 
 You are a qualitative research interview designer.
