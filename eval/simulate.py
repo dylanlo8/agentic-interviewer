@@ -80,6 +80,7 @@ def run_simulation(
     minutes_per_turn: float = 1.5,
     model: str = "gpt-4o-mini",
     temperature: float = 0.2,
+    output_dir: Path | None = None,
 ) -> Path:
     """
     Run one simulated interview and write the transcript JSON to eval/results/.
@@ -130,7 +131,8 @@ def run_simulation(
         "transcript": transcript,
     }
 
-    protocol_dir = RESULTS_DIR / _protocol_slug(protocol.protocol_name)
+    results_root = Path(output_dir) if output_dir else RESULTS_DIR
+    protocol_dir = results_root / _protocol_slug(protocol.protocol_name)
     protocol_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     out_path = protocol_dir / f"{interviewer_id}_{agent_id}_{ts}.json"
@@ -183,6 +185,8 @@ def main() -> None:
     parser.add_argument("--model", default="gpt-4o-mini",
                         help="LLM model for the interviewer agents (default: gpt-4o-mini)")
     parser.add_argument("--temperature", type=float, default=0.2)
+    parser.add_argument("--output-dir", default=None,
+                        help="Directory to save results (default: eval/results/)")
     args = parser.parse_args()
 
     out = run_simulation(
@@ -192,6 +196,7 @@ def main() -> None:
         minutes_per_turn=args.minutes_per_turn,
         model=args.model,
         temperature=args.temperature,
+        output_dir=Path(args.output_dir) if args.output_dir else None,
     )
     print(f"\nTranscript saved to: {out}")
 

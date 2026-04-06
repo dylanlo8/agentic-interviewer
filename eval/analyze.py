@@ -25,8 +25,8 @@ if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
 DIMENSIONS = [
-    "probe_tailoring", "ambiguity_resolution", "insight_density",
-    "paraphrase_fidelity", "sustained_engagement", "adaptive_sequencing",
+    "relevance", "specificity", "clarity", "informativeness",
+    "cognitive_empathy", "palpability", "self_awareness", "follow_up",
 ]
 
 

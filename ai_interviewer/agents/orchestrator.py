@@ -6,8 +6,11 @@ from ai_interviewer.state import InterviewState
 def decide_action(state: InterviewState, topics: list) -> str:
     """Deterministic router — no LLM. Priority order matters."""
 
-    # 1. Total time up
-    if state.elapsed_min >= state.total_min - state.wrapup_min:
+    # 1. Total time up — only force wrap-up if not already on the last topic,
+    #    since the last topic is typically a closing/reflection topic that should
+    #    run to its own budget rather than be cut off by the wrapup guard.
+    on_last_topic = state.current_topic_idx >= len(topics) - 1
+    if state.elapsed_min >= state.total_min - state.wrapup_min and not on_last_topic:
         return "WRAP_UP"
 
     # 2. All topics exhausted

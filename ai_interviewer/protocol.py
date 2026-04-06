@@ -1,9 +1,7 @@
 from __future__ import annotations
-
 import json
 from dataclasses import dataclass
 from pathlib import Path
-
 
 @dataclass
 class Topic:
@@ -16,7 +14,6 @@ class Topic:
     def __post_init__(self):
         if self.objectives is None:
             self.objectives = []
-
 
 @dataclass
 class Protocol:

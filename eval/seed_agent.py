@@ -182,7 +182,7 @@ def main() -> None:
                         help="One or more protocol JSON paths")
     parser.add_argument("--n-agents", type=int, default=5,
                         help="Number of agents to sample and seed (default: 5)")
-    parser.add_argument("--model", default="gpt-4o-mini",
+    parser.add_argument("--model", default="gpt-5-mini",
                         help="LLM model for memory generation (default: gpt-4o-mini)")
     parser.add_argument("--seed", type=int, default=None,
                         help="Random seed for reproducible agent sampling")

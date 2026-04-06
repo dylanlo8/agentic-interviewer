@@ -2,7 +2,7 @@
   "protocol_name": "Trust in Government Interview",
   "version": "1.0",
   "total_minutes": 45,
-  "wrapup_minutes": 5,
+  "wrapup_minutes": 1,
   "max_followups_per_thread": 6,
   "description": "This study explores your level of trust in your current government — what shapes it, where it comes from, and how it has changed over time. Your responses will help researchers better understand the diverse factors that lead people to trust or distrust the institutions that govern them. There are no right or wrong answers — all perspectives are equally valuable, and you are welcome to share as much or as little as you feel comfortable with.",
   "topics": [

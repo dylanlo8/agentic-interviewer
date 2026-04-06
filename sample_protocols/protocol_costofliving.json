@@ -2,7 +2,7 @@
   "protocol_name": "Changes in Cost of Living Interview",
   "version": "1.0",
   "total_minutes": 45,
-  "wrapup_minutes": 5,
+  "wrapup_minutes": 1,
   "max_followups_per_thread": 6,
   "description": "This study explores how changes in the cost of living over the past three years have affected you — what you have noticed, how your daily life has changed, and how you have responded. Your responses will help researchers better understand the real, lived impact of inflation on people's lives. There are no right or wrong answers — every experience is different, and we are interested in yours.",
   "topics": [

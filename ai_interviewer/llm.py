@@ -51,31 +51,36 @@ def _invoke_json(model: str, temperature: float, system_prompt: str, user_messag
 
     # Strip markdown code fences (```json ... ```) that LLMs sometimes inject
     def _strip_fences(s: str) -> str:
-        return re.sub(r"^\s*```(?:json)?\s*|\s*```\s*$", "", s.strip(), flags=re.MULTILINE)
+        s = s.strip()
+        # Remove a single leading ```... line
+        s = re.sub(r"^```[a-zA-Z0-9_-]*\s*\n", "", s)
+        # Remove a single trailing ``` on its own line
+        s = re.sub(r"\n```$", "", s)
+        return s.strip()
 
     # Strip JS-style line comments (// ...) that LLMs sometimes inject
     def _strip_comments(s: str) -> str:
         return re.sub(r"^\s*//[^\n]*\n?", "", s, flags=re.MULTILINE)
 
-    # Direct parse
+    # Clean once up front
+    cleaned = _strip_comments(_strip_fences(content))
+
+    # 1) Try direct parse of cleaned content
     try:
-        return json.loads(content)
+        return json.loads(cleaned)
     except json.JSONDecodeError:
         pass
 
-    # Retry after stripping fences and comments
-    stripped = _strip_comments(_strip_fences(content))
-    try:
-        return json.loads(stripped)
-    except json.JSONDecodeError:
-        pass
-
-    # Regex fallback: extract first {...} block
-    match = re.search(r"\{.*\}", stripped, re.DOTALL)
+    # 2) Regex fallback: extract first {...} block from cleaned content
+    match = re.search(r"\{.*\}", cleaned, re.DOTALL)
     if match:
         try:
             return json.loads(match.group())
         except json.JSONDecodeError:
             pass
+
+    # 3) As a last resort, show both raw and cleaned content in debug and raise
+    if os.environ.get("LLM_DEBUG"):
+        print("[LLM DEBUG] Failed to parse JSON. Cleaned content was:\n", cleaned)
 
     raise ValueError(f"Could not parse JSON from LLM response:\n{content}")

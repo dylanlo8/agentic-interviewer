@@ -70,10 +70,11 @@ def run_benchmark(
     population_dir: Path,
     interviewer_ids: list[str],
     n_agents: int = 5,
-    minutes_per_turn: float = 2.0,
+    minutes_per_turn: float = 1.0,
     interviewer_model: str = "gpt-4o-mini",
     temperature: float = 0.2,
     seed: int | None = None,
+    output_dir: Path | None = None,
 ) -> list[Path]:
     """
     Sample agents, run each through all interviewers in randomised order,
@@ -112,6 +113,7 @@ def run_benchmark(
                 minutes_per_turn=minutes_per_turn,
                 model=interviewer_model,
                 temperature=temperature,
+                output_dir=output_dir,
             )
             transcript_paths.append(transcript_path)
 
@@ -142,6 +144,8 @@ def main() -> None:
     parser.add_argument("--temperature", type=float, default=0.2)
     parser.add_argument("--seed", type=int, default=None,
                         help="Random seed for reproducible agent sampling and order assignment")
+    parser.add_argument("--output-dir", default=None,
+                        help="Directory to save results (default: eval/results/)")
     args = parser.parse_args()
 
     transcript_paths = run_benchmark(
@@ -153,6 +157,7 @@ def main() -> None:
         interviewer_model=args.interviewer_model,
         temperature=args.temperature,
         seed=args.seed,
+        output_dir=Path(args.output_dir) if args.output_dir else None,
     )
 
     print(f"\n{len(transcript_paths)} transcript(s) saved:")

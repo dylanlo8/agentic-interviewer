@@ -2,7 +2,7 @@
   "protocol_name": "Educational & Occupational Choice Interview",
   "version": "1.0",
   "total_minutes": 45,
-  "wrapup_minutes": 5,
+  "wrapup_minutes": 1,
   "max_followups_per_thread": 6,
   "description": "This study explores the reasons behind your educational and career choices — what drew you to your field of study, how you thought about STEM subjects specifically, and what shaped the job or profession you pursued afterward. Your responses will help researchers better understand the diverse factors that influence how people navigate education and work. There are no right or wrong answers — every journey is different, and we are interested in yours.",
   "topics": [

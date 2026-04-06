@@ -4,3 +4,5 @@ venv/
 socratic_study/data/
 CLAUDE.md
 genagents
+eval/results_new
+eval/results_old

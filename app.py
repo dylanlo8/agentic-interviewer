@@ -33,10 +33,6 @@ from ai_interviewer.runner import (
 load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(message)s", datefmt="%H:%M:%S")
 
-# ---------------------------------------------------------------------------
-# Global config (immutable after startup)
-# ---------------------------------------------------------------------------
-
 _protocol_path = Path(os.environ.get("AI_PROTOCOL_PATH", "sample_protocols/protocol_caregiver.json"))
 PROTOCOL = load_protocol(_protocol_path)
 
@@ -52,9 +48,7 @@ CFG = LLMConfig(
 )
 
 
-# ---------------------------------------------------------------------------
 # Session helpers
-# ---------------------------------------------------------------------------
 
 def _make_session() -> dict:
     """Initialise a fresh interview session and generate the opening turn."""
@@ -86,9 +80,7 @@ def _status_text(session: dict) -> str:
     )
 
 
-# ---------------------------------------------------------------------------
 # Interview logic (one turn at a time)
-# ---------------------------------------------------------------------------
 
 def start_interview():
     """Called on page load — initialise session and display opening question."""
@@ -109,32 +101,32 @@ def respond(user_message: str, history: list, session: dict):
         yield history, session, "Interview complete.", gr.update(interactive=False)
         return
 
-    # ── Show user message immediately; disable input while thinking ───────────
+    # Show user message immediately; disable input while thinking
     history = history + [{"role": "user", "content": user_message}]
     yield history, session, _status_text(session), gr.update(value="", interactive=False, placeholder="Thinking…")
 
     topics = PROTOCOL.topics
     state: InterviewState = session["state"]
 
-    # ── Timing ────────────────────────────────────────────────────────────────
+    # Timing
     elapsed_turn = (time.time() - session["turn_start"]) / 60.0
     state.elapsed_min += elapsed_turn
     state.topic_time_used += elapsed_turn
     session["turn_start"] = time.time()
 
-    # ── Update transcript ─────────────────────────────────────────────────────
+    # Update transcript
     state.transcript.append({"role": "interviewer", "content": session["last_interviewer_turn"]})
     state.transcript.append({"role": "interviewee", "content": user_message})
 
-    # ── Consume previous async results ────────────────────────────────────────
+    # Consume previous async results
     _consume_momentum(session["momentum_future"], state)
     _consume_summary(session["summary_future"], state)
 
-    # ── Orchestrator action ───────────────────────────────────────────────────
+    # Orchestrator action
     action = decide_action(state, topics)
     logging.getLogger(__name__).info("[Orchestrator] action=%s", action)
 
-    # ── WRAP_UP ───────────────────────────────────────────────────────────────
+    # WRAP_UP
     if action == "WRAP_UP":
         core = _get_turn_text("WRAP_UP", state, PROTOCOL)
         interviewer_turn = generate_turn(core, state, topics, CFG)
@@ -145,17 +137,18 @@ def respond(user_message: str, history: list, session: dict):
         yield history, session, "Interview complete.", gr.update(interactive=False, placeholder=_placeholder)
         return
 
-    # ── Kick off async agents ─────────────────────────────────────────────────
+    # Kick off async agents
     session["momentum_future"] = evaluate_momentum_async(state, topics, CFG)
     if len(state.transcript) > 8:
         session["summary_future"] = summarise_async(state, CFG)
 
-    # ── Generate core content ─────────────────────────────────────────────────
+    # Generate core content (aka Probing)
     probe_result: Optional[dict] = None
     if action == "PROBE":
         probe_result = generate_probe(state, topics, CFG)
         core = probe_result["probe_question"]
     else:
+        # If not probe, either transition or wrapup
         core = _get_turn_text(action, state, PROTOCOL)
 
     _apply_action(action, state, PROTOCOL, probe_result)
@@ -163,7 +156,7 @@ def respond(user_message: str, history: list, session: dict):
     if state.current_topic_idx >= len(topics):
         core = _get_turn_text("WRAP_UP", state, PROTOCOL)
 
-    # ── Active listening wrap ─────────────────────────────────────────────────
+    # Active listening wrap
     interviewer_turn = generate_turn(core, state, topics, CFG)
     session["last_interviewer_turn"] = interviewer_turn
 
@@ -171,9 +164,7 @@ def respond(user_message: str, history: list, session: dict):
     yield history, session, _status_text(session), gr.update(interactive=True, placeholder=_placeholder)
 
 
-# ---------------------------------------------------------------------------
-# UI
-# ---------------------------------------------------------------------------
+# Gradio UI
 
 with gr.Blocks(title="Agentic Interviewer") as demo:
     gr.Markdown(f"# {PROTOCOL.protocol_name}")

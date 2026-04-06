@@ -12,7 +12,12 @@ logger = logging.getLogger(__name__)
 _executor = ThreadPoolExecutor(max_workers=1)
 
 
-def evaluate_momentum_async(state: InterviewState, topics: list, cfg: LLMConfig) -> Future[bool]:
+def evaluate_momentum_async(
+    state: InterviewState, 
+    topics: list, 
+    cfg: LLMConfig
+) -> Future[bool]:
+    
     """
     Kick off a non-blocking momentum evaluation.
     Returns a Future[bool] — call .result() on the next turn to consume the signal.
@@ -30,7 +35,11 @@ def evaluate_momentum_async(state: InterviewState, topics: list, cfg: LLMConfig)
     return _executor.submit(_evaluate, snapshot, cfg)
 
 
-def _evaluate(snapshot: dict, cfg: LLMConfig) -> bool:
+def _evaluate(
+    snapshot: dict, 
+    cfg: LLMConfig
+) -> bool:
+    
     t0 = time.time()
     result = _invoke_json(
         cfg.topic_eval_model,
@@ -41,6 +50,8 @@ def _evaluate(snapshot: dict, cfg: LLMConfig) -> bool:
     )
     continue_probing = bool(result.get("continue_probing", True))
     reason = result.get("reason", "")
+
+    # Implement logging for the evaluation result
     elapsed = time.time() - t0
     logger.info(
         "[TopicEvaluator] result for '%s' — continue_probing=%s | reason: %s (%.2fs)",
@@ -49,4 +60,5 @@ def _evaluate(snapshot: dict, cfg: LLMConfig) -> bool:
         reason,
         elapsed,
     )
+
     return continue_probing

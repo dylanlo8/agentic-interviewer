@@ -17,10 +17,7 @@ from ai_interviewer.state import InterviewState
 
 logger = logging.getLogger(__name__)
 
-
-# ---------------------------------------------------------------------------
 # Helpers (shared by both live and headless runners)
-# ---------------------------------------------------------------------------
 
 def _init_state(protocol: Protocol) -> InterviewState:
     return InterviewState(
@@ -28,7 +25,6 @@ def _init_state(protocol: Protocol) -> InterviewState:
         wrapup_min=protocol.wrapup_minutes,
         max_followups_per_thread=protocol.max_followups_per_thread,
     )
-
 
 def _get_turn_text(action: str, state: InterviewState, protocol: Protocol) -> str:
     """Return the raw question/statement for the given action (before active listening wrap)."""
@@ -41,7 +37,7 @@ def _get_turn_text(action: str, state: InterviewState, protocol: Protocol) -> st
         return topics[next_idx].guiding_question
 
     if action == "WRAP_UP":
-        return "Thank you so much for sharing all of this with me. Is there anything else you'd like to add before we close?"
+        return "Seems like time is up. We have come to the end of the Interview. Thank you so much for sharing all of this with me."
 
     return ""  # PROBE — caller supplies probe_question directly
 
@@ -129,7 +125,7 @@ def run_interview_headless(
         if not response:
             continue
 
-        # ── Update timing ─────────────────────────────────────────────────────
+        # Update timing
         state.elapsed_min += minutes_per_turn
         state.topic_time_used += minutes_per_turn
 
@@ -142,33 +138,32 @@ def run_interview_headless(
             topic.budget_minutes,
         )
 
-        # ── Update transcript ─────────────────────────────────────────────────
+        # Update transcript
         state.transcript.append({"role": "interviewer", "content": interviewer_turn})
         state.transcript.append({"role": "interviewee", "content": response})
 
-        # ── Consume previous async signals ────────────────────────────────────
+        # Consume previous async signals
         _consume_momentum(momentum_future, state)
         if momentum_future is not None:
-            logger.info("[TopicEvaluator] consumed — continue_probing=%s", state.topic_momentum)
+            logger.info("[TopicEvaluator] consumed - continue_probing=%s", state.topic_momentum)
         _consume_summary(summary_future, state)
 
-        # ── Orchestrator: select action ───────────────────────────────────────
+        # Orchestrator: select action
         action = decide_action(state, topics)
         logger.info("[Orchestrator] action=%s", action)
 
-        # ── WRAP_UP: record closing turn and exit ─────────────────────────────
+        # WRAP_UP: record closing turn and exit (no active-listening wrap)
         if action == "WRAP_UP":
-            core = _get_turn_text("WRAP_UP", state, protocol)
-            interviewer_turn = generate_turn(core, state, topics, cfg)
+            interviewer_turn = _get_turn_text("WRAP_UP", state, protocol)
             state.transcript.append({"role": "interviewer", "content": interviewer_turn})
             break
 
-        # ── Kick off async agents for next turn ───────────────────────────────
+        # Kick off async agents for next turn
         momentum_future = evaluate_momentum_async(state, topics, cfg)
         if len(state.transcript) > 8:
             summary_future = summarise_async(state, cfg)
 
-        # ── Generate core content ─────────────────────────────────────────────
+        # Generate core content
         probe_result: Optional[dict] = None
 
         if action == "PROBE":
@@ -177,14 +172,16 @@ def run_interview_headless(
         else:
             core = _get_turn_text(action, state, protocol)
 
-        # ── Apply state changes ───────────────────────────────────────────────
+        # Apply state changes
         _apply_action(action, state, protocol, probe_result)
 
-        # ── Check if all topics done after transition ─────────────────────────
+        # Check if all topics done after transition — wrap up immediately (no active-listening wrap)
         if state.current_topic_idx >= len(topics):
-            core = _get_turn_text("WRAP_UP", state, protocol)
+            interviewer_turn = _get_turn_text("WRAP_UP", state, protocol)
+            state.transcript.append({"role": "interviewer", "content": interviewer_turn})
+            break
 
-        # ── Active Listening wraps the final turn ─────────────────────────────
+        # Active Listening wraps the final turn
         interviewer_turn = generate_turn(core, state, topics, cfg)
 
     return state
@@ -195,6 +192,7 @@ def run_interview_headless(
 # ---------------------------------------------------------------------------
 
 def run_interview(protocol: Protocol, cfg: LLMConfig) -> None:
+    # Initialise interview state
     state = _init_state(protocol)
     topics = protocol.topics
     momentum_future: Optional[Future] = None
@@ -209,7 +207,7 @@ def run_interview(protocol: Protocol, cfg: LLMConfig) -> None:
         for line in textwrap.wrap(protocol.description, width=W - 2):
             print(f"  {line}")
         print()
-
+    
     topic_titles = "\n".join(f"  {i + 1}. {t.topic_title}" for i, t in enumerate(topics))
     print(f"  This conversation will cover {len(topics)} topics:")
     print(topic_titles)
@@ -254,15 +252,14 @@ def run_interview(protocol: Protocol, cfg: LLMConfig) -> None:
 
         _consume_momentum(momentum_future, state)
         if momentum_future is not None:
-            logger.info("[TopicEvaluator] consumed — continue_probing=%s", state.topic_momentum)
+            logger.info("[TopicEvaluator] consumed - continue_probing=%s", state.topic_momentum)
         _consume_summary(summary_future, state)
 
         action = decide_action(state, topics)
         logger.info("[Orchestrator] action=%s", action)
 
         if action == "WRAP_UP":
-            core = _get_turn_text("WRAP_UP", state, protocol)
-            interviewer_turn = generate_turn(core, state, topics, cfg)
+            interviewer_turn = _get_turn_text("WRAP_UP", state, protocol)
             print(f"\nINTERVIEWER: {interviewer_turn}\n")
             break
 
@@ -281,7 +278,9 @@ def run_interview(protocol: Protocol, cfg: LLMConfig) -> None:
         _apply_action(action, state, protocol, probe_result)
 
         if state.current_topic_idx >= len(topics):
-            core = _get_turn_text("WRAP_UP", state, protocol)
+            interviewer_turn = _get_turn_text("WRAP_UP", state, protocol)
+            print(f"\nINTERVIEWER: {interviewer_turn}\n")
+            break
 
         interviewer_turn = generate_turn(core, state, topics, cfg)
 

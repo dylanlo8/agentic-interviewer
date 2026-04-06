@@ -5,7 +5,11 @@ from ai_interviewer.prompts import FOLLOWUP_SYSTEM, build_context
 from ai_interviewer.state import InterviewState
 
 
-def generate_probe(state: InterviewState, topics: list, cfg: LLMConfig) -> dict:
+def generate_probe(
+    state: InterviewState, 
+    topics: list, 
+    cfg: LLMConfig
+) -> dict:
     """
     Generate a follow-up probe for the interviewee's latest response.
 
@@ -22,6 +26,7 @@ def generate_probe(state: InterviewState, topics: list, cfg: LLMConfig) -> dict:
         f"Generate a follow-up probe.\n\n{context}",
         base_url=cfg.followup_base_url,
     )
+    
     # Ensure expected keys exist
     result.setdefault("probe_question", "Can you tell me more about that?")
     result.setdefault("open_loops", [])
